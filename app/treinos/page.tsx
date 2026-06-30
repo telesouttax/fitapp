@@ -4,9 +4,10 @@ import { useMemo, useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { Card, SectionTitle, Button, Input, Select, EmptyState } from "@/components/ui";
 import { muscleGroups } from "@/lib/seedExercises";
-import { Plus, Trash2, ChevronDown, ChevronRight, Check, X, UserCircle } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronRight, Check, X, UserCircle, Printer } from "lucide-react";
 import { ExerciseDemoButton } from "@/components/ExerciseDemoButton";
 import { getWorkoutRecommendation } from "@/lib/recommendations";
+import { PrintableRoutine } from "@/components/PrintableRoutine";
 import Link from "next/link";
 
 export default function TreinosPage() {
@@ -28,7 +29,8 @@ export default function TreinosPage() {
   const recommendation = profile ? getWorkoutRecommendation(profile) : null;
 
   return (
-    <div className="flex flex-col gap-8">
+    <>
+    <div className="flex flex-col gap-8 print:hidden">
       <div>
         <span className="text-coral text-xs font-semibold tracking-widest uppercase">Treinos</span>
         <h1 className="display-text text-3xl md:text-4xl font-extrabold text-paper mt-1">
@@ -106,6 +108,9 @@ export default function TreinosPage() {
         />
       )}
     </div>
+
+    {activeRoutine && <PrintableRoutine routine={activeRoutine} exercises={exercises} />}
+    </>
   );
 }
 
@@ -127,11 +132,16 @@ function RoutineEditor({ routineId, onDelete }: { routineId: string; onDelete: (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <h3 className="display-text text-lg font-bold text-paper">{routine.name}</h3>
-        <Button variant="danger" onClick={onDelete}>
-          <span className="flex items-center gap-1.5">
-            <Trash2 size={14} /> Excluir rotina
-          </span>
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => window.print()} variant="ghost" className="!py-1.5 text-xs">
+            <span className="flex items-center gap-1"><Printer size={14} /> Imprimir / Salvar PDF</span>
+          </Button>
+          <Button variant="danger" onClick={onDelete}>
+            <span className="flex items-center gap-1.5">
+              <Trash2 size={14} /> Excluir rotina
+            </span>
+          </Button>
+        </div>
       </div>
 
       <Card className="flex flex-col sm:flex-row gap-3">
