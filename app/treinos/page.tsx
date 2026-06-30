@@ -4,11 +4,14 @@ import { useMemo, useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { Card, SectionTitle, Button, Input, Select, EmptyState } from "@/components/ui";
 import { muscleGroups } from "@/lib/seedExercises";
-import { Plus, Trash2, ChevronDown, ChevronRight, Check, X } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronRight, Check, X, UserCircle } from "lucide-react";
+import { ExerciseDemoButton } from "@/components/ExerciseDemoButton";
+import { getWorkoutRecommendation } from "@/lib/recommendations";
+import Link from "next/link";
 
 export default function TreinosPage() {
   const store = useAppStore();
-  const { routines, exercises } = store;
+  const { routines, exercises, profile } = store;
 
   const [newRoutineName, setNewRoutineName] = useState("");
   const [activeRoutineId, setActiveRoutineId] = useState<string | null>(routines[0]?.id ?? null);
@@ -22,6 +25,8 @@ export default function TreinosPage() {
     setActiveRoutineId(id);
   }
 
+  const recommendation = profile ? getWorkoutRecommendation(profile) : null;
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -30,6 +35,31 @@ export default function TreinosPage() {
           Suas rotinas
         </h1>
       </div>
+
+      {recommendation ? (
+        <Card className="!border-sage/30">
+          <div className="flex items-center gap-2 mb-2">
+            <UserCircle size={16} className="text-sage" />
+            <span className="text-sage text-xs font-semibold tracking-widest uppercase">
+              Recomendado pra você
+            </span>
+          </div>
+          <ul className="text-sm text-paper-dim flex flex-col gap-1">
+            <li><span className="text-paper">Frequência:</span> {recommendation.frequency}</li>
+            <li><span className="text-paper">Divisão sugerida:</span> {recommendation.split}</li>
+            <li><span className="text-paper">Séries:</span> {recommendation.sets}</li>
+            <li><span className="text-paper">Faixa de repetições:</span> {recommendation.reps}</li>
+            <li className="text-xs mt-1">{recommendation.note}.</li>
+          </ul>
+        </Card>
+      ) : (
+        <Card className="flex items-center justify-between gap-3 !border-coral/40">
+          <p className="text-sm text-paper">Complete seu perfil para receber recomendações de treino personalizadas.</p>
+          <Link href="/perfil" className="shrink-0">
+            <Button className="!py-1.5 text-xs whitespace-nowrap">Completar perfil</Button>
+          </Link>
+        </Card>
+      )}
 
       <Card className="flex flex-col sm:flex-row gap-3">
         <Input
@@ -322,6 +352,8 @@ function ExerciseRow({
           <span className="flex items-center gap-1"><Plus size={13} /> Série</span>
         </Button>
       </div>
+
+      {def && <ExerciseDemoButton exerciseName={def.name} />}
     </div>
   );
 }
