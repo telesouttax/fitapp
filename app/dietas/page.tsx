@@ -5,10 +5,11 @@ import { useAppStore, todayISO } from "@/lib/store";
 import { Card, SectionTitle, Button, Input, Select, EmptyState } from "@/components/ui";
 import { macrosForFood } from "@/lib/calc";
 import { emptyMacros, sumMacros, Macros } from "@/lib/types";
-import { Plus, Trash2, Check, UtensilsCrossed, Sparkles } from "lucide-react";
+import { Plus, Trash2, Check, UtensilsCrossed, Sparkles, Printer } from "lucide-react";
 import { FoodSearch } from "@/components/FoodSearch";
 import { OFFProduct } from "@/lib/api/openFoodFacts";
 import { generateDiet } from "@/lib/dietGenerator";
+import { PrintableDiet } from "@/components/PrintableDiet";
 
 function MacroPill({ macros }: { macros: Macros }) {
   return (
@@ -51,7 +52,8 @@ export default function DietasPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <>
+    <div className="flex flex-col gap-8 print:hidden">
       <div>
         <span className="text-coral text-xs font-semibold tracking-widest uppercase">Dietas</span>
         <h1 className="display-text text-3xl md:text-4xl font-extrabold text-paper mt-1">
@@ -127,6 +129,9 @@ export default function DietasPage() {
         <DietEditor dietId={activeDiet.id} onDelete={() => { store.removeDiet(activeDiet.id); setActiveDietId(null); }} />
       )}
     </div>
+
+    {activeDiet && <PrintableDiet diet={activeDiet} foods={store.foods} />}
+    </>
   );
 }
 
@@ -170,6 +175,9 @@ function DietEditor({ dietId, onDelete }: { dietId: string; onDelete: () => void
           <MacroPill macros={dietTotal} />
         </div>
         <div className="flex gap-2">
+          <Button onClick={() => window.print()} variant="ghost" className="!py-1.5 text-xs">
+            <span className="flex items-center gap-1"><Printer size={14} /> Imprimir / Salvar PDF</span>
+          </Button>
           <Button onClick={handleLogToday} className="!py-1.5 text-xs">
             {justLogged ? (
               <span className="flex items-center gap-1"><Check size={13} /> Lançado no diário</span>
@@ -291,9 +299,16 @@ function MealEditor({ dietId, mealId }: { dietId: string; mealId: string }) {
       <div className="flex flex-wrap gap-2 items-center mb-3">
         <Select value={foodId} onChange={(e) => setFoodId(e.target.value)} className="flex-1 min-w-[180px]">
           <option value="">Selecione um alimento</option>
-          {foods.map((f) => (
-            <option key={f.id} value={f.id}>{f.name} ({f.unitLabel})</option>
-          ))}
+          <optgroup label="Alimentos">
+            {foods.filter((f) => f.category !== "suplemento").map((f) => (
+              <option key={f.id} value={f.id}>{f.name} ({f.unitLabel})</option>
+            ))}
+          </optgroup>
+          <optgroup label="Suplementos">
+            {foods.filter((f) => f.category === "suplemento").map((f) => (
+              <option key={f.id} value={f.id}>{f.name} ({f.unitLabel})</option>
+            ))}
+          </optgroup>
         </Select>
         <Input
           type="number"
