@@ -1,4 +1,51 @@
-import { DiaryEntry, FoodItem, Macros, emptyMacros, scaleMacros, sumMacros } from "./types";
+import { ActivityLevel, DiaryEntry, FoodItem, Goal, Macros, UserProfile, emptyMacros, scaleMacros, sumMacros } from "./types";
+
+const ACTIVITY_FACTORS: Record<ActivityLevel, number> = {
+  sedentario: 1.2,
+  leve: 1.375,
+  moderado: 1.55,
+  ativo: 1.725,
+  muito_ativo: 1.9,
+};
+
+const GOAL_KCAL_ADJUSTMENT: Record<Goal, number> = {
+  perder_peso: -500,
+  manter_peso: 0,
+  ganhar_massa: 350,
+};
+
+const GOAL_PROTEIN_PER_KG: Record<Goal, number> = {
+  perder_peso: 2.2,
+  manter_peso: 1.8,
+  ganhar_massa: 2.0,
+};
+
+export function calcBMR(profile: UserProfile): number {
+  const base = 10 * profile.weightKg + 6.25 * profile.heightCm - 5 * profile.age;
+  return profile.sex === "M" ? base + 5 : base - 161;
+}
+
+export function calcTDEE(profile: UserProfile): number {
+  return calcBMR(profile) * ACTIVITY_FACTORS[profile.activityLevel];
+}
+
+export function calcSuggestedGoals(profile: UserProfile): Macros {
+  const tdee = calcTDEE(profile);
+  const kcal = Math.max(1200, tdee + GOAL_KCAL_ADJUSTMENT[profile.goal]);
+
+  const protein = profile.weightKg * GOAL_PROTEIN_PER_KG[profile.goal];
+  const fat = (kcal * 0.25) / 9;
+  const proteinKcal = protein * 4;
+  const fatKcal = fat * 9;
+  const carbs = Math.max(0, (kcal - proteinKcal - fatKcal) / 4);
+
+  return {
+    kcal: Math.round(kcal),
+    protein: Math.round(protein),
+    carbs: Math.round(carbs),
+    fat: Math.round(fat),
+  };
+}
 
 export function macrosForFood(food: FoodItem, quantityUnits: number): Macros {
   // quantityUnits = quantas vezes a referência `per` (ex: 1.5x de 100g)
