@@ -1,5 +1,24 @@
 // Tipos centrais do app
 
+export type Sex = "M" | "F";
+
+export type ActivityLevel = "sedentario" | "leve" | "moderado" | "ativo" | "muito_ativo";
+
+export type Goal = "perder_peso" | "manter_peso" | "ganhar_massa";
+
+export type ExperienceLevel = "iniciante" | "intermediario" | "avancado";
+
+export type UserProfile = {
+  name: string;
+  age: number;
+  sex: Sex;
+  weightKg: number;
+  heightCm: number;
+  activityLevel: ActivityLevel;
+  goal: Goal;
+  experienceLevel: ExperienceLevel;
+};
+
 export type Macros = {
   kcal: number;
   protein: number; // g
