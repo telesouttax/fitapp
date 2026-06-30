@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Dumbbell, UtensilsCrossed, NotebookPen, Settings, Gauge } from "lucide-react";
+import { Dumbbell, UtensilsCrossed, NotebookPen, UserCircle, Gauge } from "lucide-react";
 
 const items = [
   { href: "/", label: "Painel", icon: Gauge },
   { href: "/treinos", label: "Treinos", icon: Dumbbell },
   { href: "/dietas", label: "Dietas", icon: UtensilsCrossed },
   { href: "/diario", label: "Diário", icon: NotebookPen },
-  { href: "/configuracoes", label: "Metas", icon: Settings },
+  { href: "/perfil", label: "Perfil", icon: UserCircle },
 ];
 
 export function Nav() {
