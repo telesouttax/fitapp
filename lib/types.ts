@@ -80,12 +80,15 @@ export type WorkoutLogEntry = {
 
 // ---------- DIETAS / ALIMENTOS ----------
 
+export type FoodCategory = "alimento" | "suplemento";
+
 export type FoodItem = {
   id: string;
   name: string;
   per: number; // referência em gramas/ml (ex: 100)
   unitLabel: string; // "100g" / "100ml" / "unidade"
   macros: Macros;
+  category?: FoodCategory; // default: "alimento"
   custom?: boolean;
 };
 
