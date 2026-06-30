@@ -18,7 +18,7 @@ export function Nav() {
   return (
     <>
       {/* Sidebar desktop */}
-      <nav className="hidden md:flex md:flex-col md:w-56 md:shrink-0 border-r border-ink-line px-4 py-6 gap-1">
+      <nav className="hidden md:flex md:flex-col md:w-56 md:shrink-0 border-r border-ink-line px-4 py-6 gap-1 print:hidden">
         <div className="px-2 mb-8">
           <span className="display-text text-2xl font-extrabold tracking-tight text-paper">
             Fit<span className="text-coral">Track</span>
@@ -44,7 +44,7 @@ export function Nav() {
       </nav>
 
       {/* Bottom nav mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-ink-line bg-ink/95 backdrop-blur px-2 py-2 flex justify-between">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-ink-line bg-ink/95 backdrop-blur px-2 py-2 flex justify-between print:hidden">
         {items.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
