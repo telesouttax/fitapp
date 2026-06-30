@@ -15,8 +15,13 @@ Não testei essas chamadas em produção durante o desenvolvimento (o ambiente o
 
 - **Perfil**: cadastre nome, idade, sexo, peso, altura, nível de atividade, objetivo e experiência de treino. Com isso o app calcula seu gasto calórico (fórmula de Mifflin-St Jeor) e sugere metas de calorias/macros ajustadas ao seu objetivo — você pode aplicar a sugestão com um clique ou ajustar manualmente. A tela de Treinos também passa a mostrar uma recomendação de frequência/divisão/repetições com base no seu objetivo e experiência.
 - **Treinos**: crie rotinas, adicione dias de treino, escolha exercícios por grupo muscular e registre séries/reps/carga. Registre o treino do dia no histórico. Cada exercício tem um botão "Ver demonstração" que busca uma imagem ilustrativa na API wger.
-- **Dietas**: monte planos de refeições com uma base de ~30 alimentos brasileiros (macros já calculados), busque produtos industrializados via Open Food Facts, e lance um dia de dieta inteiro direto no diário.
+- **Dietas**: monte planos de refeições manualmente com uma base de ~30 alimentos brasileiros (macros já calculados), busque produtos industrializados via Open Food Facts, **ou gere uma dieta automaticamente** com base nas suas metas (botão "Gerar dieta automática" — calcula as quantidades de cada alimento pra bater proteína/carbo/gordura via um sistema de equações lineares). Lance um dia de dieta inteiro direto no diário.
 - **Diário**: registre o que você comeu por refeição, em qualquer data (manualmente ou via busca Open Food Facts), e acompanhe o anel de calorias e as barras de macros (proteína/carbo/gordura) comparado à meta.
+
+## Sobre a dieta gerada automaticamente
+
+O botão "Gerar dieta automática" (em Dietas) monta um plano de 4 refeições calculando as quantidades de alimentos pra bater suas metas de calorias e macros — usando uma combinação fixa de alimentos por refeição (proteína + carboidrato + gordura) e resolvendo um sistema de equações lineares pra achar as quantidades certas. Em testes, a margem de erro fica geralmente abaixo de 5%, podendo chegar a ~10-15% em casos específicos (mais comum na gordura). É uma estimativa de ponto de partida, não uma prescrição nutricional profissional — sinta-se livre pra trocar alimentos ou ajustar quantidades manualmente depois de gerada. A lógica está em `lib/dietGenerator.ts`, incluindo os alimentos escolhidos por refeição — fácil de customizar.
+
 
 ## Rodando localmente
 
