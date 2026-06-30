@@ -5,7 +5,10 @@ import { useAppStore, todayISO } from "@/lib/store";
 import { Card, SectionTitle, Button, Input, Select, EmptyState } from "@/components/ui";
 import { macrosForFood } from "@/lib/calc";
 import { emptyMacros, sumMacros, Macros } from "@/lib/types";
-import { Plus, Trash2, Check, UtensilsCrossed } from "lucide-react";
+import { Plus, Trash2, Check, UtensilsCrossed, Sparkles } from "lucide-react";
+import { FoodSearch } from "@/components/FoodSearch";
+import { OFFProduct } from "@/lib/api/openFoodFacts";
+import { generateDiet } from "@/lib/dietGenerator";
 
 function MacroPill({ macros }: { macros: Macros }) {
   return (
@@ -20,9 +23,10 @@ function MacroPill({ macros }: { macros: Macros }) {
 
 export default function DietasPage() {
   const store = useAppStore();
-  const { diets } = store;
+  const { diets, goals, profile } = store;
   const [newDietName, setNewDietName] = useState("");
   const [activeDietId, setActiveDietId] = useState<string | null>(diets[0]?.id ?? null);
+  const [generating, setGenerating] = useState(false);
 
   const activeDiet = diets.find((d) => d.id === activeDietId) ?? null;
 
@@ -31,6 +35,19 @@ export default function DietasPage() {
     const id = store.addDiet(newDietName.trim());
     setNewDietName("");
     setActiveDietId(id);
+  }
+
+  function handleGenerate() {
+    setGenerating(true);
+    const meals = generateDiet(goals, store.foods);
+    const dietName = `Dieta sugerida — ${new Date().toLocaleDateString("pt-BR")}`;
+    const dietId = store.addDiet(dietName);
+    meals.forEach((meal) => {
+      const mealId = store.addMeal(dietId, meal.name);
+      meal.items.forEach((item) => store.addFoodToMeal(dietId, mealId, item.foodId, item.quantity));
+    });
+    setActiveDietId(dietId);
+    setGenerating(false);
   }
 
   return (
@@ -42,6 +59,35 @@ export default function DietasPage() {
         </h1>
       </div>
 
+      <Card className="!border-sage/30 flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <Sparkles size={16} className="text-sage" />
+          <span className="text-sage text-xs font-semibold tracking-widest uppercase">Gerar automaticamente</span>
+        </div>
+        <p className="text-sm text-paper-dim">
+          Monta um plano de 4 refeições calculado pra bater suas metas de calorias e macros (
+          <span className="tabular text-paper">
+            {Math.round(goals.kcal)} kcal · P{Math.round(goals.protein)} C{Math.round(goals.carbs)} G{Math.round(goals.fat)}
+          </span>
+          ), as mesmas que levam em conta seu nível de atividade física no Perfil.
+        </p>
+        <Button onClick={handleGenerate} disabled={generating} className="self-start">
+          <span className="flex items-center gap-1.5">
+            <Sparkles size={15} /> {generating ? "Gerando..." : "Gerar dieta automática"}
+          </span>
+        </Button>
+        {!profile && (
+          <p className="text-xs text-coral">
+            Você ainda não preencheu o Perfil — as metas usadas agora são genéricas. Complete o perfil pra uma dieta
+            mais precisa.
+          </p>
+        )}
+        <p className="text-[11px] text-paper-dim">
+          As quantidades são uma estimativa calculada automaticamente — ajuste à vontade (trocar alimento,
+          quantidade) depois de gerada.
+        </p>
+      </Card>
+
       <Card className="flex flex-col sm:flex-row gap-3">
         <Input
           placeholder="Nome da dieta (ex: Cutting 2200kcal)"
@@ -52,7 +98,7 @@ export default function DietasPage() {
         />
         <Button onClick={handleCreate}>
           <span className="flex items-center gap-1.5">
-            <Plus size={16} /> Nova dieta
+            <Plus size={16} /> Nova dieta (em branco)
           </span>
         </Button>
       </Card>
@@ -177,6 +223,7 @@ function MealEditor({ dietId, mealId }: { dietId: string; mealId: string }) {
   const foods = useAppStore((s) => s.foods);
   const [foodId, setFoodId] = useState("");
   const [qtyMultiplier, setQtyMultiplier] = useState(1);
+  const [showSearch, setShowSearch] = useState(false);
 
   if (!meal) return null;
 
@@ -191,6 +238,18 @@ function MealEditor({ dietId, mealId }: { dietId: string; mealId: string }) {
     if (!id) return;
     store.addFoodToMeal(dietId, mealId, id, qtyMultiplier);
     setQtyMultiplier(1);
+  }
+
+  function handlePickOFF(p: OFFProduct) {
+    const name = p.brand ? `${p.name} — ${p.brand}` : p.name;
+    const newId = store.addCustomFood({
+      name,
+      per: 100,
+      unitLabel: "100g",
+      macros: p.macros,
+    });
+    store.addFoodToMeal(dietId, mealId, newId, 1);
+    setShowSearch(false);
   }
 
   return (
@@ -248,7 +307,16 @@ function MealEditor({ dietId, mealId }: { dietId: string; mealId: string }) {
         <Button onClick={handleAdd} className="!py-2">
           <Plus size={15} />
         </Button>
+        <Button variant="ghost" className="!py-2 text-xs" onClick={() => setShowSearch(!showSearch)}>
+          {showSearch ? "Fechar busca" : "Buscar produto industrializado"}
+        </Button>
       </div>
+
+      {showSearch && (
+        <div className="bg-ink rounded-md border border-ink-line p-3 mb-3">
+          <FoodSearch onPick={handlePickOFF} />
+        </div>
+      )}
 
       <MacroPill macros={mealTotal} />
     </Card>
