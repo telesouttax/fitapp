@@ -5,10 +5,10 @@ import { useAppStore, todayISO } from "@/lib/store";
 import { macrosForDiaryDate } from "@/lib/calc";
 import { MacroRing } from "@/components/MacroRing";
 import { Card, SectionTitle, Button } from "@/components/ui";
-import { Dumbbell, UtensilsCrossed, ArrowRight } from "lucide-react";
+import { Dumbbell, UtensilsCrossed, ArrowRight, UserCircle } from "lucide-react";
 
 export default function DashboardPage() {
-  const { diary, foods, goals, workoutLogs, routines } = useAppStore();
+  const { diary, foods, goals, workoutLogs, routines, profile } = useAppStore();
   const today = todayISO();
   const consumed = macrosForDiaryDate(diary, foods, today);
 
@@ -31,6 +31,20 @@ export default function DashboardPage() {
           Painel do dia
         </h1>
       </div>
+
+      {!profile && (
+        <Card className="flex items-center justify-between gap-3 !border-coral/40">
+          <div className="flex items-center gap-3">
+            <UserCircle size={22} className="text-coral shrink-0" />
+            <p className="text-sm text-paper">
+              Complete seu perfil para calcularmos metas de calorias/macros personalizadas.
+            </p>
+          </div>
+          <Link href="/perfil" className="shrink-0">
+            <Button className="!py-1.5 text-xs whitespace-nowrap">Completar perfil</Button>
+          </Link>
+        </Card>
+      )}
 
       <Card className="flex flex-col items-center py-8">
         <MacroRing consumed={consumed} goals={goals} size={220} />
