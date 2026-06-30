@@ -64,7 +64,7 @@ type AppState = {
   diets: DietPlan[];
   addDiet: (name: string) => string;
   removeDiet: (id: string) => void;
-  addMeal: (dietId: string, name: string, time?: string) => void;
+  addMeal: (dietId: string, name: string, time?: string) => string;
   removeMeal: (dietId: string, mealId: string) => void;
   addFoodToMeal: (dietId: string, mealId: string, foodId: string, quantity: number) => void;
   updateMealFoodQty: (dietId: string, mealId: string, entryId: string, quantity: number) => void;
@@ -290,14 +290,17 @@ export const useAppStore = create<AppState>()(
 
       removeDiet: (id) => set({ diets: get().diets.filter((d) => d.id !== id) }),
 
-      addMeal: (dietId, name, time) =>
+      addMeal: (dietId, name, time) => {
+        const id = uuid();
         set({
           diets: get().diets.map((d) =>
             d.id === dietId
-              ? { ...d, meals: [...d.meals, { id: uuid(), name, time, items: [] } as Meal] }
+              ? { ...d, meals: [...d.meals, { id, name, time, items: [] } as Meal] }
               : d
           ),
-        }),
+        });
+        return id;
+      },
 
       removeMeal: (dietId, mealId) =>
         set({
