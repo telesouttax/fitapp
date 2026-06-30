@@ -11,6 +11,7 @@ import {
   Goals,
   Meal,
   MealFoodEntry,
+  UserProfile,
   WorkoutDay,
   WorkoutExercise,
   WorkoutLogEntry,
@@ -24,6 +25,10 @@ function todayISO() {
 }
 
 type AppState = {
+  // perfil
+  profile: UserProfile | null;
+  setProfile: (p: UserProfile) => void;
+
   // catálogos
   foods: FoodItem[];
   exercises: ExerciseDef[];
@@ -76,6 +81,9 @@ type AppState = {
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
+      profile: null,
+      setProfile: (p) => set({ profile: p }),
+
       foods: seedFoods,
       exercises: seedExercises,
 
