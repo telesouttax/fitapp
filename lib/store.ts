@@ -18,6 +18,7 @@ import {
   WorkoutRoutine,
 } from "./types";
 import { seedFoods } from "./seedFoods";
+import { seedSupplements } from "./seedSupplements";
 import { seedExercises } from "./seedExercises";
 
 function todayISO() {
@@ -84,7 +85,7 @@ export const useAppStore = create<AppState>()(
       profile: null,
       setProfile: (p) => set({ profile: p }),
 
-      foods: seedFoods,
+      foods: [...seedFoods, ...seedSupplements],
       exercises: seedExercises,
 
       goals: { kcal: 2200, protein: 150, carbs: 220, fat: 70 },
@@ -390,7 +391,29 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: "fitapp-storage",
-      version: 1,
+      version: 2,
+      migrate: (persistedState: any, version: number) => {
+        // Garante que novos itens de catálogo (ex: suplementos adicionados depois)
+        // apareçam pra quem já tinha dados salvos, sem perder alimentos/exercícios
+        // customizados que a pessoa já tenha criado.
+        const allSeedFoods = [...seedFoods, ...seedSupplements];
+        const existingFoods: FoodItem[] = persistedState?.foods ?? [];
+        const existingFoodIds = new Set(existingFoods.map((f) => f.id));
+        const mergedFoods = [...existingFoods, ...allSeedFoods.filter((f) => !existingFoodIds.has(f.id))];
+
+        const existingExercises: ExerciseDef[] = persistedState?.exercises ?? [];
+        const existingExerciseIds = new Set(existingExercises.map((e) => e.id));
+        const mergedExercises = [
+          ...existingExercises,
+          ...seedExercises.filter((e) => !existingExerciseIds.has(e.id)),
+        ];
+
+        return {
+          ...persistedState,
+          foods: mergedFoods,
+          exercises: mergedExercises,
+        };
+      },
     }
   )
 );
