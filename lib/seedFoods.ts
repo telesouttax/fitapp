@@ -21,7 +21,6 @@ export const seedFoods: FoodItem[] = [
   { id: "f-abacate", name: "Abacate", per: 100, unitLabel: "100g", macros: { kcal: 160, protein: 2, carbs: 8.5, fat: 14.7 } },
   { id: "f-leite-integral", name: "Leite integral", per: 100, unitLabel: "100ml", macros: { kcal: 61, protein: 3.2, carbs: 4.8, fat: 3.3 } },
   { id: "f-iogurte-natural", name: "Iogurte natural integral", per: 100, unitLabel: "100g", macros: { kcal: 51, protein: 3.5, carbs: 4.7, fat: 1.5 } },
-  { id: "f-whey", name: "Whey protein (pó)", per: 30, unitLabel: "1 scoop (30g)", macros: { kcal: 120, protein: 24, carbs: 3, fat: 1.5 } },
   { id: "f-queijo-minas", name: "Queijo minas frescal", per: 100, unitLabel: "100g", macros: { kcal: 264, protein: 17.4, carbs: 3, fat: 20 } },
   { id: "f-castanha-para", name: "Castanha do Pará", per: 100, unitLabel: "100g", macros: { kcal: 656, protein: 14, carbs: 12, fat: 66 } },
   { id: "f-amendoim", name: "Amendoim torrado", per: 100, unitLabel: "100g", macros: { kcal: 567, protein: 26, carbs: 16, fat: 49 } },
