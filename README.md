@@ -17,7 +17,8 @@ Não testei essas chamadas em produção durante o desenvolvimento (o ambiente o
 - **Treinos**: crie rotinas, adicione dias de treino, escolha exercícios por grupo muscular e registre séries/reps/carga. Registre o treino do dia no histórico. Cada exercício tem um botão "Ver demonstração" que busca uma imagem ilustrativa na API wger.
 - **Dietas**: monte planos de refeições manualmente com uma base de ~30 alimentos brasileiros (macros já calculados) e suplementos (whey, creatina etc.), busque produtos industrializados via Open Food Facts, **ou gere uma dieta automaticamente** com base nas suas metas. Lance um dia de dieta inteiro direto no diário.
 - **Diário**: registre o que você comeu por refeição, em qualquer data (manualmente ou via busca Open Food Facts), e acompanhe o anel de calorias e as barras de macros (proteína/carbo/gordura) comparado à meta.
-- **Imprimir / Salvar PDF**: exporte sua dieta ou rotina de treino ativa pra PDF (ou imprima em papel) direto da tela de Dietas/Treinos.
+- **Lista de compras**: a partir de uma dieta montada, o app soma as quantidades de cada alimento/suplemento de todas as refeições e monta uma lista de compras (com opção de multiplicar pra quantos dias você vai seguir aquela dieta, ex: 7 dias = a semana toda). Aparece na tela (botão "Lista de compras" dentro da dieta) e também sai junto na versão impressa/PDF.
+- **Imprimir / Salvar PDF**: exporte sua dieta (com lista de compras) ou rotina de treino ativa pra PDF (ou imprima em papel) direto da tela de Dietas/Treinos.
 
 ## Sobre a dieta gerada automaticamente
 
