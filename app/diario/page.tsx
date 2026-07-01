@@ -6,8 +6,10 @@ import { Card, SectionTitle, Button, Input, Select, EmptyState } from "@/compone
 import { macrosForDiaryDate, macrosForFood, groupDiaryByMeal } from "@/lib/calc";
 import { MacroRing } from "@/components/MacroRing";
 import { Plus, Trash2 } from "lucide-react";
+import { FoodSearch } from "@/components/FoodSearch";
+import { OFFProduct } from "@/lib/api/openFoodFacts";
 
-const commonMeals = ["Café da manhã", "Almoço", "Lanche", "Jantar", "Ceia", "Pré-treino", "Pós-treino"];
+const commonMeals = ["Café da manhã", "Almoço", "Lanche", "Jantar", "Ceia", "Pré-treino", "Pós-treino", "Suplementação"];
 
 export default function DiarioPage() {
   const store = useAppStore();
@@ -17,6 +19,7 @@ export default function DiarioPage() {
   const [mealName, setMealName] = useState(commonMeals[0]);
   const [foodId, setFoodId] = useState("");
   const [qty, setQty] = useState(1);
+  const [showSearch, setShowSearch] = useState(false);
 
   const consumed = macrosForDiaryDate(diary, foods, date);
   const groups = groupDiaryByMeal(diary, date);
@@ -26,6 +29,18 @@ export default function DiarioPage() {
     if (!id) return;
     store.addDiaryEntry(date, mealName, id, qty);
     setQty(1);
+  }
+
+  function handlePickOFF(p: OFFProduct) {
+    const name = p.brand ? `${p.name} — ${p.brand}` : p.name;
+    const newId = store.addCustomFood({
+      name,
+      per: 100,
+      unitLabel: "100g",
+      macros: p.macros,
+    });
+    store.addDiaryEntry(date, mealName, newId, 1);
+    setShowSearch(false);
   }
 
   return (
@@ -54,9 +69,16 @@ export default function DiarioPage() {
           </Select>
           <Select value={foodId} onChange={(e) => setFoodId(e.target.value)} className="flex-1 min-w-[180px]">
             <option value="">Selecione um alimento</option>
-            {foods.map((f) => (
-              <option key={f.id} value={f.id}>{f.name} ({f.unitLabel})</option>
-            ))}
+            <optgroup label="Alimentos">
+              {foods.filter((f) => f.category !== "suplemento").map((f) => (
+                <option key={f.id} value={f.id}>{f.name} ({f.unitLabel})</option>
+              ))}
+            </optgroup>
+            <optgroup label="Suplementos">
+              {foods.filter((f) => f.category === "suplemento").map((f) => (
+                <option key={f.id} value={f.id}>{f.name} ({f.unitLabel})</option>
+              ))}
+            </optgroup>
           </Select>
           <Input
             type="number"
@@ -70,7 +92,16 @@ export default function DiarioPage() {
           <Button onClick={handleAdd}>
             <span className="flex items-center gap-1.5"><Plus size={15} /> Adicionar</span>
           </Button>
+          <Button variant="ghost" onClick={() => setShowSearch(!showSearch)}>
+            {showSearch ? "Fechar busca" : "Buscar produto industrializado"}
+          </Button>
         </div>
+
+        {showSearch && (
+          <div className="bg-ink rounded-md border border-ink-line p-3 mt-3">
+            <FoodSearch onPick={handlePickOFF} />
+          </div>
+        )}
       </Card>
 
       {Object.keys(groups).length === 0 ? (
