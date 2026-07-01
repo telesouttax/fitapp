@@ -5,10 +5,11 @@ import { useAppStore, todayISO } from "@/lib/store";
 import { Card, SectionTitle, Button, Input, Select, EmptyState } from "@/components/ui";
 import { macrosForFood } from "@/lib/calc";
 import { emptyMacros, sumMacros, Macros } from "@/lib/types";
-import { Plus, Trash2, Check, UtensilsCrossed, Sparkles, Printer } from "lucide-react";
+import { Plus, Trash2, Check, UtensilsCrossed, Sparkles, Printer, ShoppingCart } from "lucide-react";
 import { FoodSearch } from "@/components/FoodSearch";
 import { OFFProduct } from "@/lib/api/openFoodFacts";
 import { generateDiet } from "@/lib/dietGenerator";
+import { generateShoppingList, formatAmount } from "@/lib/shoppingList";
 import { PrintableDiet } from "@/components/PrintableDiet";
 
 function MacroPill({ macros }: { macros: Macros }) {
@@ -28,6 +29,7 @@ export default function DietasPage() {
   const [newDietName, setNewDietName] = useState("");
   const [activeDietId, setActiveDietId] = useState<string | null>(diets[0]?.id ?? null);
   const [generating, setGenerating] = useState(false);
+  const [shoppingDays, setShoppingDays] = useState(7);
 
   const activeDiet = diets.find((d) => d.id === activeDietId) ?? null;
 
@@ -126,22 +128,38 @@ export default function DietasPage() {
       )}
 
       {activeDiet && (
-        <DietEditor dietId={activeDiet.id} onDelete={() => { store.removeDiet(activeDiet.id); setActiveDietId(null); }} />
+        <DietEditor
+          dietId={activeDiet.id}
+          onDelete={() => { store.removeDiet(activeDiet.id); setActiveDietId(null); }}
+          shoppingDays={shoppingDays}
+          onShoppingDaysChange={setShoppingDays}
+        />
       )}
     </div>
 
-    {activeDiet && <PrintableDiet diet={activeDiet} foods={store.foods} />}
+    {activeDiet && <PrintableDiet diet={activeDiet} foods={store.foods} days={shoppingDays} />}
     </>
   );
 }
 
-function DietEditor({ dietId, onDelete }: { dietId: string; onDelete: () => void }) {
+function DietEditor({
+  dietId,
+  onDelete,
+  shoppingDays,
+  onShoppingDaysChange,
+}: {
+  dietId: string;
+  onDelete: () => void;
+  shoppingDays: number;
+  onShoppingDaysChange: (days: number) => void;
+}) {
   const store = useAppStore();
   const diet = useAppStore((s) => s.diets.find((d) => d.id === dietId));
   const foods = useAppStore((s) => s.foods);
   const [newMealName, setNewMealName] = useState("");
   const [newMealTime, setNewMealTime] = useState("");
   const [justLogged, setJustLogged] = useState(false);
+  const [showShoppingList, setShowShoppingList] = useState(false);
 
   if (!diet) return null;
 
@@ -175,6 +193,9 @@ function DietEditor({ dietId, onDelete }: { dietId: string; onDelete: () => void
           <MacroPill macros={dietTotal} />
         </div>
         <div className="flex gap-2">
+          <Button onClick={() => setShowShoppingList(!showShoppingList)} variant="ghost" className="!py-1.5 text-xs">
+            <span className="flex items-center gap-1"><ShoppingCart size={14} /> Lista de compras</span>
+          </Button>
           <Button onClick={() => window.print()} variant="ghost" className="!py-1.5 text-xs">
             <span className="flex items-center gap-1"><Printer size={14} /> Imprimir / Salvar PDF</span>
           </Button>
@@ -190,6 +211,70 @@ function DietEditor({ dietId, onDelete }: { dietId: string; onDelete: () => void
           </Button>
         </div>
       </div>
+
+      {showShoppingList && (
+        <Card className="!border-sage/30 flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <ShoppingCart size={16} className="text-sage" />
+              <span className="text-sage text-xs font-semibold tracking-widest uppercase">Lista de compras</span>
+            </div>
+            <label className="flex items-center gap-2 text-xs text-paper-dim">
+              Repetir essa dieta por
+              <Input
+                type="number"
+                min={1}
+                max={31}
+                value={shoppingDays}
+                onChange={(e) => onShoppingDaysChange(Math.max(1, Number(e.target.value)))}
+                className="w-16 !py-1 tabular"
+              />
+              dia(s)
+            </label>
+          </div>
+
+          {(() => {
+            const list = generateShoppingList(diet, foods, shoppingDays);
+            if (list.length === 0) {
+              return <p className="text-sm text-paper-dim">Adicione refeições com alimentos pra gerar a lista.</p>;
+            }
+            const alimentos = list.filter((i) => i.category === "alimento");
+            const suplementos = list.filter((i) => i.category === "suplemento");
+            return (
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-paper-dim font-semibold uppercase tracking-wide mb-1.5">Alimentos</p>
+                  <ul className="flex flex-col gap-1">
+                    {alimentos.map((i) => (
+                      <li key={i.foodId} className="text-sm text-paper flex justify-between gap-2 border-b border-ink-line py-1">
+                        <span>{i.name}</span>
+                        <span className="tabular text-paper-dim shrink-0">{formatAmount(i.totalAmount, i.unit)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {suplementos.length > 0 && (
+                  <div>
+                    <p className="text-xs text-paper-dim font-semibold uppercase tracking-wide mb-1.5">Suplementos</p>
+                    <ul className="flex flex-col gap-1">
+                      {suplementos.map((i) => (
+                        <li key={i.foodId} className="text-sm text-paper flex justify-between gap-2 border-b border-ink-line py-1">
+                          <span>{i.name}</span>
+                          <span className="tabular text-paper-dim shrink-0">{formatAmount(i.totalAmount, i.unit)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+          <p className="text-[11px] text-paper-dim">
+            Quantidades somadas de todas as refeições dessa dieta, multiplicadas pelos dias acima. Ajuste conforme o
+            que você já tem em casa.
+          </p>
+        </Card>
+      )}
 
       <Card className="flex flex-col sm:flex-row gap-3">
         <Input
