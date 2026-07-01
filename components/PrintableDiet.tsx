@@ -1,7 +1,8 @@
 import { DietPlan, FoodItem, emptyMacros, sumMacros } from "@/lib/types";
 import { macrosForFood } from "@/lib/calc";
+import { generateShoppingList, formatAmount } from "@/lib/shoppingList";
 
-export function PrintableDiet({ diet, foods }: { diet: DietPlan; foods: FoodItem[] }) {
+export function PrintableDiet({ diet, foods, days = 1 }: { diet: DietPlan; foods: FoodItem[]; days?: number }) {
   const dietTotal = diet.meals.reduce((acc, m) => {
     const mealTotal = m.items.reduce((macc, item) => {
       const food = foods.find((f) => f.id === item.foodId);
@@ -78,6 +79,43 @@ export function PrintableDiet({ diet, foods }: { diet: DietPlan; foods: FoodItem
           Total do dia: {Math.round(dietTotal.kcal)} kcal · Proteína {Math.round(dietTotal.protein)}g ·
           Carboidrato {Math.round(dietTotal.carbs)}g · Gordura {Math.round(dietTotal.fat)}g
         </p>
+      </div>
+
+      <div className="mt-8" style={{ breakInside: "avoid" }}>
+        <h2 className="text-lg font-bold border-b-2 border-black pb-1 mb-3">
+          Lista de compras {days > 1 ? `(${days} dias)` : "(1 dia)"}
+        </h2>
+        {(() => {
+          const list = generateShoppingList(diet, foods, days);
+          const alimentos = list.filter((i) => i.category === "alimento");
+          const suplementos = list.filter((i) => i.category === "suplemento");
+          return (
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm font-semibold mb-1">Alimentos</p>
+                <ul className="text-sm flex flex-col gap-0.5">
+                  {alimentos.map((i) => (
+                    <li key={i.foodId}>
+                      ☐ {i.name} — {formatAmount(i.totalAmount, i.unit)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {suplementos.length > 0 && (
+                <div>
+                  <p className="text-sm font-semibold mb-1">Suplementos</p>
+                  <ul className="text-sm flex flex-col gap-0.5">
+                    {suplementos.map((i) => (
+                      <li key={i.foodId}>
+                        ☐ {i.name} — {formatAmount(i.totalAmount, i.unit)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
