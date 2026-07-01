@@ -1,0 +1,86 @@
+import { FoodItem } from "./types";
+
+// Valores aproximados por dose usual de cada suplemento (rótulos variam por marca —
+// ajuste a quantidade se a sua dose for diferente).
+export const seedSupplements: FoodItem[] = [
+  {
+    id: "f-whey",
+    name: "Whey protein (concentrado)",
+    per: 30,
+    unitLabel: "1 scoop (30g)",
+    macros: { kcal: 120, protein: 24, carbs: 3, fat: 1.5 },
+    category: "suplemento",
+  },
+  {
+    id: "f-albumina",
+    name: "Albumina (clara de ovo em pó)",
+    per: 30,
+    unitLabel: "2 colheres de sopa (30g)",
+    macros: { kcal: 108, protein: 23, carbs: 2, fat: 0.5 },
+    category: "suplemento",
+  },
+  {
+    id: "f-creatina",
+    name: "Creatina monohidratada",
+    per: 3,
+    unitLabel: "1 dose (3g)",
+    macros: { kcal: 0, protein: 0, carbs: 0, fat: 0 },
+    category: "suplemento",
+  },
+  {
+    id: "f-bcaa",
+    name: "BCAA",
+    per: 5,
+    unitLabel: "1 dose (5g)",
+    macros: { kcal: 20, protein: 5, carbs: 0, fat: 0 },
+    category: "suplemento",
+  },
+  {
+    id: "f-glutamina",
+    name: "Glutamina",
+    per: 5,
+    unitLabel: "1 dose (5g)",
+    macros: { kcal: 0, protein: 0, carbs: 0, fat: 0 },
+    category: "suplemento",
+  },
+  {
+    id: "f-maltodextrina",
+    name: "Maltodextrina",
+    per: 30,
+    unitLabel: "1 dose (30g)",
+    macros: { kcal: 116, protein: 0, carbs: 29, fat: 0 },
+    category: "suplemento",
+  },
+  {
+    id: "f-dextrose",
+    name: "Dextrose",
+    per: 30,
+    unitLabel: "1 dose (30g)",
+    macros: { kcal: 120, protein: 0, carbs: 30, fat: 0 },
+    category: "suplemento",
+  },
+  {
+    id: "f-omega3",
+    name: "Ômega 3",
+    per: 1,
+    unitLabel: "1 cápsula (1g)",
+    macros: { kcal: 9, protein: 0, carbs: 0, fat: 1 },
+    category: "suplemento",
+  },
+  {
+    id: "f-multivitaminico",
+    name: "Multivitamínico",
+    per: 1,
+    unitLabel: "1 cápsula",
+    macros: { kcal: 0, protein: 0, carbs: 0, fat: 0 },
+    category: "suplemento",
+  },
+  {
+    id: "f-pre-treino",
+    name: "Pré-treino / cafeína",
+    per: 1,
+    unitLabel: "1 dose (scoop/cápsula)",
+    macros: { kcal: 5, protein: 0, carbs: 1, fat: 0 },
+    category: "suplemento",
+  },
+];
